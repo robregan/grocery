@@ -6,7 +6,7 @@ import { FaTrash } from 'react-icons/fa'
 
 const formatDate = (dateString) => {
   const date = new Date(dateString)
-  return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`
+  return `${date.toLocaleDateString()}`
 }
 
 const App = () => {
