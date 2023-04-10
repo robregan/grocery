@@ -27,13 +27,22 @@ app.get('/', async (req, res) => {
   }
 })
 
-app.delete('/delete-item/:id', async (req, res) => {
+// new route for editing form data
+app.put('/edit/:id', async (req, res) => {
   try {
-    const item = await FormData.findByIdAndDelete(req.params.id)
-    if (!item) {
-      return res.status(404).send({ message: 'Item not found' })
-    }
-    res.status(200).send({ message: 'Item deleted successfully' })
+    const formData = await FormData.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    })
+    res.send(formData)
+  } catch (error) {
+    res.status(500).send({ message: 'Error processing the request' })
+  }
+})
+
+app.delete('/delete/:id', async (req, res) => {
+  try {
+    await FormData.findByIdAndDelete(req.params.id)
+    res.status(204).send()
   } catch (error) {
     res.status(500).send({ message: 'Error processing the request' })
   }
@@ -42,15 +51,14 @@ app.delete('/delete-item/:id', async (req, res) => {
 // new route for form submission
 app.post('/submit-form', async (req, res) => {
   try {
-    console.log(req.body)
     const formData = new FormData(req.body)
-
     await formData.save()
     res.status(201).send(formData)
   } catch (error) {
     res.status(500).send({ message: 'Error processing the request' })
   }
 })
+
 const startServer = async () => {
   try {
     connectDB(process.env.MONGODB_URL)
