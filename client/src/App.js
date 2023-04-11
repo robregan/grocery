@@ -14,6 +14,10 @@ const App = () => {
   const [expirationMonth, setExpirationMonth] = useState('')
   const [editingItem, setEditingItem] = useState(null)
 
+  const middleIndex = Math.ceil(groceryList.length / 2)
+  const groceryList1 = groceryList.slice(0, middleIndex)
+  const groceryList2 = groceryList.slice(middleIndex)
+
   const handleEdit = (item) => {
     setEditingItem(item)
     setIngredient(item.ingredient)
@@ -31,17 +35,26 @@ const App = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString)
-    return `${date.toLocaleDateString()}`
+    const month = date.getMonth() + 1
+    const day = date.getDate()
+    return `${month}/${day}`
   }
 
+  // App.js
+  // ...
+
   const formatExpiresOn = (dateString) => {
+    if (!dateString) return ''
+
     const date = new Date(dateString)
-    const formatter = new Intl.DateTimeFormat('en-US', {
-      day: 'numeric',
-      month: 'short',
-    })
-    return formatter.format(date)
+
+    if (isNaN(date.getTime())) return ''
+
+    const month = date.getMonth() + 1
+    const day = date.getDate()
+    return `${month}/${day}`
   }
+  // ...
 
   useEffect(() => {
     const fetchGroceries = async () => {
@@ -55,13 +68,27 @@ const App = () => {
     fetchGroceries()
   }, [fetchData])
 
-  const deleteGroceryItem = async (id) => {
-    try {
-      await api.delete(`/delete-item/${id}`)
-      setGroceryList(groceryList.filter((item) => item._id !== id))
-    } catch (error) {
-      console.error('Error deleting grocery item:', error)
-    }
+  const renderGroceryList = (list) => {
+    return list.length > 0 ? (
+      list.map((item) => (
+        <li key={item._id}>
+          {item.ingredient} - {item.amount} ({formatDate(item.createdAt)})
+          {item.expiresOn && (
+            <span> - Expires on: {formatExpiresOn(item.expiresOn)}</span>
+          )}
+          <div className='icon-container'>
+            <button className='icon-btn' onClick={() => handleEdit(item)}>
+              ✏️
+            </button>
+            <button className='icon-btn' onClick={() => handleDelete(item._id)}>
+              🗑️
+            </button>
+          </div>
+        </li>
+      ))
+    ) : (
+      <p>No grocery items found</p>
+    )
   }
 
   const handleSubmit = async (e) => {
@@ -96,6 +123,33 @@ const App = () => {
     }
   }
 
+  const handleExpirationChange = (e) => {
+    const { name, value } = e.target
+    let updatedMonth = expirationMonth
+    let updatedDay = expirationDay
+
+    if (name === 'expirationMonth') {
+      setExpirationMonth(value)
+      updatedMonth = value
+    } else if (name === 'expirationDay') {
+      setExpirationDay(value)
+      updatedDay = value
+    }
+
+    if (updatedMonth !== '' && updatedDay !== '') {
+      const newDate = new Date()
+      newDate.setMonth(parseInt(updatedMonth) - 1)
+      newDate.setDate(parseInt(updatedDay))
+      newDate.setHours(0, 0, 0, 0)
+
+      if (!isNaN(newDate.getTime())) {
+        setExpiresOn(newDate.toISOString())
+      }
+    } else {
+      setExpiresOn('')
+    }
+  }
+
   return (
     <div className='container'>
       <div className='form-container'>
@@ -118,8 +172,9 @@ const App = () => {
           <label htmlFor='expiresOn'>Expires on:</label>
           <select
             value={expirationMonth}
-            onChange={(e) => setExpirationMonth(e.target.value)}
+            onChange={handleExpirationChange}
             placeholder='Month'
+            name='expirationMonth'
           >
             <option value='' disabled>
               Month
@@ -142,13 +197,14 @@ const App = () => {
             min='1'
             max='31'
             value={expirationDay}
-            onChange={(e) => setExpirationDay(e.target.value)}
+            onChange={handleExpirationChange}
             placeholder='Day'
+            name='expirationDay'
           />
           <button type='submit'>Add Grocery</button>
         </form>
-      </div>
-      <div className='list-container'>
+
+        {/* <div className='list-container'>
         <div className='paper'>
           <ul>
             {groceryList.length > 0 ? (
@@ -177,6 +233,25 @@ const App = () => {
               <p>No grocery items found</p>
             )}
           </ul>
+        </div>
+      </div> */}
+
+        {/* <div className='list-container'>
+        <div className='paper'>
+          <ul>{renderGroceryList(groceryList1)}</ul>
+        </div>
+        <div className='paper'>
+          <ul>{renderGroceryList(groceryList2)}</ul>
+        </div>
+      </div> */}
+
+        <div className='list-container'>
+          <div className='paper grocery-list'>
+            {renderGroceryList(groceryList.slice(0, groceryList.length / 2))}
+          </div>
+          <div className='paper grocery-list'>
+            {renderGroceryList(groceryList.slice(groceryList.length / 2))}
+          </div>
         </div>
       </div>
     </div>
