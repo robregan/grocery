@@ -15,6 +15,7 @@ form {
   flex-direction: column;
   align-items: center;
   margin-bottom: 30px;
+  float: left;
 }
 
 input {
@@ -56,12 +57,19 @@ ul {
 
 
 li {
-  padding: 8px 5px;
-  border-bottom: 1px solid #ddd;
-  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f2f2f2;
+}
+
+li span {
+  margin-left: 10px;
+  font-size: 14px;
+  font-style: italic;
 }
 
 .icon-container {
@@ -109,7 +117,7 @@ li:last-child {
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: flex-start;
-  margin-left: 30px;
+ padding-left: 50px;
 }
 
 
@@ -161,6 +169,14 @@ select {
 .icon-btn:hover {
   opacity: 0.7;
 }
+input, select{
+  margin-left: 50px;
+}
+.form-container form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
 @media (max-width: 768px) {
   .form-container,
@@ -168,6 +184,11 @@ select {
     flex: 100%;
     margin: 0;
   }
+  .form-container form {
+    width: 100%;
+    max-width: 300px;
+  }
+
 
   .list-container {
     display: flex;
