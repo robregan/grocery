@@ -7,7 +7,7 @@ const setYearTo2023 = (dateString) => {
   return date
 }
 
-const Form = new mongoose.Schema(
+const GrocerySchema = new mongoose.Schema(
   {
     ingredient: String,
     amount: String,
@@ -15,10 +15,11 @@ const Form = new mongoose.Schema(
       type: Date,
       set: setYearTo2023, // Use custom setter function
     },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   },
   { timestamps: true }
 )
 
-const FormData = mongoose.model('FormData', Form)
+const FormData = mongoose.model('FormData', GrocerySchema)
 
 export default FormData

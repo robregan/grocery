@@ -74,7 +74,7 @@ const App = () => {
         <li key={item._id}>
           {item.ingredient} - {item.amount} ({formatDate(item.createdAt)})
           {item.expiresOn && (
-            <span>Expires on: {formatExpiresOn(item.expiresOn)}</span>
+            <span> - Expires on: {formatExpiresOn(item.expiresOn)}</span>
           )}
           <div className='icon-container'>
             <button className='icon-btn' onClick={() => handleEdit(item)}>
@@ -87,7 +87,7 @@ const App = () => {
         </li>
       ))
     ) : (
-      <p>No grocery items found</p>
+      <p className='bambi'>No grocery items found</p>
     )
   }
 

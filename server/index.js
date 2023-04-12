@@ -3,16 +3,58 @@ import * as dotenv from 'dotenv'
 import cors from 'cors'
 import connectDB from './mongodb/connect.js'
 import FormData from './mongodb/models/FormModel.js'
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+import User from './mongodb/models/UserModel.js'
 
 dotenv.config()
 
 const app = express()
+const router = express.Router()
 app.use(cors())
 app.use(express.json())
 
 // routes
 
 // routes
+
+router.post('/register', async (req, res) => {
+  const { username, email, password } = req.body
+
+  const existingUser = await User.findOne({ email })
+  if (existingUser) {
+    return res.status(400).json({ message: 'User already exists' })
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10)
+
+  const newUser = new User({ username, email, password: hashedPassword })
+
+  await newUser.save()
+
+  res.status(201).json({ message: 'User created' })
+})
+
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body
+
+  const user = await User.findOne({ email })
+  if (!user) {
+    return res.status(400).json({ message: 'Invalid email or password' })
+  }
+
+  const validPassword = await bcrypt.compare(password, user.password)
+  if (!validPassword) {
+    return res.status(400).json({ message: 'Invalid email or password' })
+  }
+
+  const token = jwt.sign({ userId: user._id }, 'your_jwt_secret', {
+    expiresIn: '1h',
+  })
+
+  res.status(200).json({ token, userId: user._id })
+})
+export default router
 
 app.get('/', async (req, res) => {
   try {
